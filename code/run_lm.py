@@ -372,7 +372,13 @@ def eval_line_completion(args, model, tokenizer, file_type='test'):
     gts = []
     edit_sim = 0.0
     em = 0.0
+
+    print("Starting evaluation...")
+
     for step, (inputs, gt) in enumerate(test_dataloader):
+        
+        if args.early_eval_stop > 0 and step > args.early_eval_stop: break
+
         inputs = inputs.to(args.device)
         with torch.no_grad():
             beam_size = 5
@@ -537,6 +543,8 @@ def main():
 
     parser.add_argument('--log_file', type=str, default='')
     parser.add_argument('--tensorboard_dir', type=str)  
+
+    parser.add_argument('--early_eval_stop', type=int, default=-1) 
     
     pool = None
     args = parser.parse_args()
