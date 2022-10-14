@@ -339,7 +339,18 @@ def eval_line_completion(args, model, tokenizer, file_type='test'):
                 codes += to_add
         return codes.strip(" ")
 
-    dataset = lineDataset(tokenizer, args, logger, file_type=file_type, block_size=args.block_size-100)
+    pickled_tokenized_dataset_file = args.data_dir + '/tokenized.pkl'
+    if os.path.exists(pickled_tokenized_dataset_file):
+        with open(pickled_tokenized_dataset_file, 'rb') as dataset_pickled_read:
+            logger.info('Loading tokenized dataset from pickle file...')
+            dataset = pickle.load(dataset_pickled_read)
+    else:
+        logger.info('Tokenizing dataset (this may take a very long time!)...')
+        dataset = lineDataset(tokenizer, args, logger, file_type=file_type, block_size=args.block_size-100)
+        logger.info('Saving tokenized dataset to pickle file...')
+        pickle.dump(dataset, open(pickled_tokenized_dataset_file, 'wb'))
+
+
     test_sampler = SequentialSampler(dataset)
     test_dataloader = DataLoader(dataset, sampler=test_sampler, batch_size=1)
     model.to(args.device)
