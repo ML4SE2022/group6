@@ -457,7 +457,7 @@ def main():
     parser.add_argument("--model_type", default="gpt2", type=str,
                         help="The model architecture to be fine-tuned.")
     parser.add_argument("--pretrain_dir", default="", type=str,
-                        help="The output directory where the model predictions and checkpoints will be written.")
+                        help="The pretrain directory where the pretrained model resides")
     parser.add_argument("--config_dir", type=str,
                         help="config name. Required when training from scratch")
     parser.add_argument("--tokenizer_dir", type=str,
