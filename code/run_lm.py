@@ -377,7 +377,7 @@ def eval_line_completion(args, model, tokenizer, file_type='test'):
 
     for step, (inputs, gt) in enumerate(test_dataloader):
         
-        if args.early_eval_stop > 0 and step > args.early_eval_stop: break
+        if args.early_eval_stop > 0 and step >= args.early_eval_stop: break
 
         inputs = inputs.to(args.device)
         with torch.no_grad():
