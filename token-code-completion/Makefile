@@ -1,15 +1,15 @@
 all: 
 	@echo "Please provide a target."
 
-LANG=python
-DATASET=py150
+LANG=java
+DATASET=javaCorpus
 DATADIR=dataset/${DATASET}/token_completion
 LITFILE=dataset/${DATASET}/literals.json
 OUTPUTDIR=save/${DATASET} # The output directory where the model predictions and checkpoints will be written. 
-PRETRAINDIR=microsoft/CodeGPT-small-py-adaptedGPT2
-LOGFILE=logs/token_completion_py150_eval.log
+PRETRAINDIR=microsoft/CodeGPT-small-java
+LOGFILE=logs/token_completion_java_train.log
 
-train-python:
+train-token:
 	python -m torch.distributed.launch --nproc_per_node=1 code/run_lm.py \
 		--data_dir=${DATADIR} \
 		--lit_file=${LITFILE} \
@@ -27,9 +27,10 @@ train-python:
 		--per_gpu_train_batch_size=2 \
 		--per_gpu_eval_batch_size=4 \
 		--gradient_accumulation_steps=4 \
-		--num_train_epochs=1 \
-		--logging_steps=1 \
+		--num_train_epochs=5 \
+		--logging_steps=10 \
 		--save_steps=1000 \
 		--seed=42 \
 		--overwrite_output_dir \
 		--not_pretrain
+
