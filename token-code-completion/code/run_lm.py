@@ -208,11 +208,12 @@ def train(args, train_dataset, model, tokenizer, fh, pool):
 
                 if args.local_rank in [-1, 0] and args.save_steps > 0 and global_step % args.save_steps == 0:
                     save_checkpoint(args, model, tokenizer, optimizer, global_step)
-                    
-            if args.max_steps > 0 and global_step > args.max_steps:
-                break
-        if args.max_steps > 0 and global_step > args.max_steps:
-            break
+
+            if args.early_train_stop > 0 and step >= args.early_train_stop: break
+            if args.max_steps > 0 and global_step > args.max_steps: break
+        
+        if args.early_train_stop > 0 and step >= args.early_train_stop: break
+        if args.max_steps > 0 and global_step > args.max_steps: break
         
     # Save final checkpoint
     save_checkpoint(args, model, tokenizer, optimizer, global_step)
@@ -590,6 +591,8 @@ def main():
 
     parser.add_argument('--log_file', type=str, default='')
     parser.add_argument('--tensorboard_dir', type=str)  
+
+    parser.add_argument('--early_train_stop', type=int, default=-1) 
     
     pool = None
     args = parser.parse_args()
