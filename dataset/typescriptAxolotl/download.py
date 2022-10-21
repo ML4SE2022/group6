@@ -158,12 +158,12 @@ def ts_tokenize(args, file_name, file_type):
                     out_tokens = out_tokens[1:]
                 if out_tokens[-1] == '<EOL>':
                     out_tokens = out_tokens[:-1]
+                out_tokens = ["<s>"] + out_tokens + ['</s>']
+                out = " ".join(out_tokens)
+                wf.write(out + '\n')
             except Exception as e:
+                pass
                 # print(f"Error processing {path.strip()}: {e}")
-                out_tokens = []
-            out_tokens = ["<s>"] + out_tokens + ['</s>']
-            out = " ".join(out_tokens)
-            wf.write(out + '\n')
 
 def preprocess(args):
     print("Preprocessing...")
