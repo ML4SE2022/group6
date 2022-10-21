@@ -1,13 +1,13 @@
 all: 
 	@echo "Please provide a target."
 
-LANG=java
-DATASET=javaCorpus
-DATADIR=dataset/${DATASET}/token_completion
-LITFILE=dataset/${DATASET}/literals.json
-OUTPUTDIR=save/${DATASET} # The output directory where the model predictions and checkpoints will be written. 
-PRETRAINDIR=microsoft/CodeGPT-small-java
-LOGFILE=logs/token_completion_java_train.log
+PYLANG=python
+PYDATASET = py150
+PYDATADIR=dataset/${PYDATASET}/token_completion
+PYLITFILE=dataset/${PYDATASET}/literals.json
+PYOUTPUTDIR=save/${PYDATASET} # The output directory where the model predictions and checkpoints will be written.
+PYPRETRAINDIR=microsoft/CodeGPT-small-py-adaptedGPT2
+PYLOGFILE=logs/completion_py150_eval.log
 
 TSLANG=typescript
 TSDATASET=typescriptAxolotl
@@ -26,14 +26,14 @@ JSPRETRAINDIR=microsoft/CodeGPT-small-java-adaptedGPT2
 JSLOGFILE=logs/token_completion_java_javascript_train.log
 
 
-train-token:
+py-train-token:
 	python -m torch.distributed.launch --nproc_per_node=1 code/run_lm.py \
-		--data_dir=${DATADIR} \
-		--lit_file=${LITFILE} \
-		--langs=${LANG} \
-		--output_dir=${OUTPUTDIR} \
-		--pretrain_dir=${PRETRAINDIR} \
-		--log_file=${LOGFILE} \
+		--data_dir=${PYDATADIR} \
+		--lit_file=${PYLITFILE} \
+		--langs=${PYLANG} \
+		--output_dir=${PYOUTPUTDIR} \
+		--pretrain_dir=${PYPRETRAINDIR} \
+		--log_file=${PYLOGFILE} \
 		--model_type=gpt2 \
 		--block_size=1024 \
 		--do_train \
@@ -114,7 +114,7 @@ eval-token:
 		--do_eval \
 		--per_gpu_eval_batch_size=16 \
 		--logging_steps=100 \
-		--seed=42 \
+		--seed=42
 
 evaluation-example:
 	python evaluator/evaluator.py -a=evaluator/answers.txt -p=evaluator/predictions.txt
