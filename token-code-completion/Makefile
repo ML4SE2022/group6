@@ -54,7 +54,8 @@ py-train-token:
 		--save_steps=1000 \
 		--seed=42 \
 		--overwrite_output_dir \
-		--not_pretrain
+		--not_pretrain \
+		--early_train_stop=10
 
 py-train-token-on-js:
 	python -m torch.distributed.launch --nproc_per_node=1 code/run_lm.py \
@@ -79,7 +80,8 @@ py-train-token-on-js:
 		--save_steps=1000 \
 		--seed=42 \
 		--overwrite_output_dir \
-		--not_pretrain
+		--not_pretrain \
+		--early_train_stop=10
 
 py-train-token-on-ts:
 	python -m torch.distributed.launch --nproc_per_node=1 code/run_lm.py \
@@ -104,7 +106,8 @@ py-train-token-on-ts:
 		--save_steps=1000 \
 		--seed=42 \
 		--overwrite_output_dir \
-		--not_pretrain
+		--not_pretrain \
+		--early_train_stop=10
 
 ts-train-token:
 	python -m torch.distributed.launch --nproc_per_node=1 code/run_lm.py \
@@ -129,7 +132,8 @@ ts-train-token:
 		--save_steps=1000 \
 		--seed=42 \
 		--overwrite_output_dir \
-		--not_pretrain
+		--not_pretrain \
+		--early_train_stop=10
 
 js-train-token:
 	python -m torch.distributed.launch --nproc_per_node=1 code/run_lm.py \
@@ -154,7 +158,8 @@ js-train-token:
 		--save_steps=1000 \
 		--seed=42 \
 		--overwrite_output_dir \
-		--not_pretrain
+		--not_pretrain \
+		--early_train_stop=10
 
 eval-token:
 	python -u code/run_lm.py \
