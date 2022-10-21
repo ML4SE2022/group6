@@ -11,6 +11,9 @@ transformers = "^3"
 fuzzywuzzy = "^0.18.0"
 protobuf = "3.20.x"
 jupyter = "^1.0.0"
+datasets = "^2.6.1"
+tqdm = "^4.64.1"
+jsbeautifier = "^1.14.6"
 
 [tool.poetry.dev-dependencies]
 
