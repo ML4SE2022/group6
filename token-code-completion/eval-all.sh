@@ -4,19 +4,19 @@ eval_model() {
   local LANG=$2
   local DATASET=$3
 
-  local DATADIR="dataset/${DATASET}/token_completion"
-  local LITFILE="dataset/${DATASET}/literals.json"
-  local OUTPUTDIR="save/dataset_${DATASET}_model_${MODEL}"
-  local LOGFILE="logs/token_completion_dataset_${DATASET}_model_${MODEL}.log"
+  local DATA_DIR="dataset/${DATASET}/token_completion"
+  local LITERALS_FILE="dataset/${DATASET}/literals.json"
+  local OUTPUT_DIR="save/dataset_${DATASET}_model_${MODEL}"
+  local LOGFILE="logs/token_completion_eval_dataset_${DATASET}_model_${MODEL}.log"
   local PRETRAIN_DIR="save/${MODEL}/checkpoint-last"
 
   echo "Evaluating model ${MODEL} on ${LANG} dataset: ${DATASET}"
 
   python -u code/run_lm.py \
-    --data_dir="${DATADIR}" \
-    --lit_file="${LITFILE}" \
+    --data_dir="${DATA_DIR}" \
+    --lit_file="${LITERALS_FILE}" \
     --langs="${LANG}" \
-    --output_dir="${OUTPUTDIR}" \
+    --output_dir="${OUTPUT_DIR}" \
     --pretrain_dir="${PRETRAIN_DIR}" \
     --log_file="${LOGFILE}" \
     --model_type=gpt2 \
