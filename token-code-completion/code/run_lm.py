@@ -387,6 +387,9 @@ def eval_acc(args, model, tokenizer, file_type='test'):
     total_gt = []
 
     for step, batch in enumerate(eval_dataloader):
+        
+        if args.early_eval_stop > 0 and step >= args.early_eval_stop: break
+
         inputs = batch.to(args.device)
 
         with torch.no_grad():
@@ -593,6 +596,7 @@ def main():
     parser.add_argument('--tensorboard_dir', type=str)  
 
     parser.add_argument('--early_train_stop', type=int, default=-1) 
+    parser.add_argument('--early_eval_stop', type=int, default=-1)
     
     pool = None
     args = parser.parse_args()
