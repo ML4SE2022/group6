@@ -484,8 +484,10 @@ def post_process(args, preds, gts, true_gts, saved_file):
         if gt == "</s>":
             gt_str = " ".join(new_gt)
             pred_str = " ".join(new_pred)
-            assert gt_str == true_gts[cnt].strip(), f"{cnt} sample gt_str != true_gt"
-            wf.write(pred_str+"\n")
+            if gt_str == true_gts[cnt].strip():
+                print("{cnt} sample gt_str != true_gt")
+            else:
+                wf.write(pred_str+"\n")
             cnt += 1
             new_gt = []
             new_pred = []
