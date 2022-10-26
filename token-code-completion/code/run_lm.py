@@ -381,7 +381,6 @@ def eval_acc(args, model, tokenizer, file_type='test'):
     model.eval()
 
     correct = 0.0
-    edit_sim_total = 0.0
     total = 0
 
     total_pred = []
@@ -458,14 +457,11 @@ def eval_acc(args, model, tokenizer, file_type='test'):
                 all_total += 1
                 if x == y:
                     correct += 1
-                else:
-                    edit_sim_total += levenshtein_distance(x, y)
 
 
         if step % args.logging_steps == 0:
-            edit_sim = edit_sim_total / all_total
             logger.info(f"{step} are done!")
-            logger.info(f"{total} (this batch: {all_total}), Acc: {correct/total}. Edit sim: {edit_sim}")
+            logger.info(f"{total} (this batch: {all_total}), Acc: {correct/total}")
 
     # pickle.dump(total_pred, open(os.path.join(args.output_dir, "preds.pkl"), "wb"))
     # pickle.dump(total_gt, open(os.path.join(args.output_dir, "gts.pkl"), "wb"))
@@ -475,22 +471,6 @@ def eval_acc(args, model, tokenizer, file_type='test'):
     logger.info(f"Eval on {total_samples}, saved at {saved_file}")
     
     return total, correct
-
-
-def levenshtein_distance(s1: str, s2: str) -> float:
-    if len(s1) > len(s2):
-        s1, s2 = s2, s1
-
-    distances = range(len(s1) + 1)
-    for i2, c2 in enumerate(s2):
-        distances_ = [i2+1]
-        for i1, c1 in enumerate(s1):
-            if c1 == c2:
-                distances_.append(distances[i1])
-            else:
-                distances_.append(1 + min((distances[i1], distances[i1 + 1], distances_[-1])))
-        distances = distances_
-    return distances[-1] / max(len(s1), len(s2))
 
 
 def post_process(args, preds, gts, true_gts, saved_file):
