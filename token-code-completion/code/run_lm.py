@@ -381,6 +381,7 @@ def eval_acc(args, model, tokenizer, file_type='test'):
     model.eval()
 
     correct = 0.0
+    edit_sim_total = 0.0
     total = 0
 
     total_pred = []
@@ -451,7 +452,6 @@ def eval_acc(args, model, tokenizer, file_type='test'):
         total_pred.extend(all_pred)
         total_gt.extend(all_gt)
 
-        edit_sim_total = 0
         for x, y in zip(all_pred, all_gt):
             if y not in ["<s>", "</s>", "<EOL>", "<pad>"]:
                 total += 1
@@ -508,8 +508,8 @@ def post_process(args, preds, gts, true_gts, saved_file):
             gt_str = " ".join(new_gt)
             pred_str = " ".join(new_pred)
             if gt_str != true_gts[cnt].strip():
-               # print("{cnt} sample gt_str != true_gt")
-                ignore = gt_str != true_gt # Just to make the compiler happy
+                # print("{cnt} sample gt_str != true_gt")
+                pass
             else:
                 wf.write(pred_str+"\n")
             cnt += 1
