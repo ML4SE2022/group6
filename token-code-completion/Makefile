@@ -310,3 +310,52 @@ eval-js-ts-on-ts:
 		--logging_steps=100 \
 		--seed=42 \
 		--early_eval_stop=1000
+
+
+eval-all-py:
+	python -u code/run_lm.py \
+		--data_dir=${PYDATADIR} \
+		--lit_file=${PYLITFILE} \
+		--langs=${PYLANG} \
+		--output_dir=save/not-tuned/eval-none-py \
+		--pretrain_dir=${PYPRETRAINDIR} \
+		--log_file=logs/eval_all_py.log \
+		--model_type=gpt2 \
+		--block_size=1024 \
+		--do_eval \
+		--per_gpu_eval_batch_size=16 \
+		--logging_steps=100 \
+		--seed=42 \
+		--early_eval_stop=1000
+
+eval-all-js:
+	python -u code/run_lm.py \
+		--data_dir=${JSDATADIR} \
+		--lit_file=${JSLITFILE} \
+		--langs=${JSLANG} \
+		--output_dir=save/not-tuned/eval-none-js \
+		--pretrain_dir=${PYPRETRAINDIR} \
+		--log_file=logs/eval_all_py.log \
+		--model_type=gpt2 \
+		--block_size=1024 \
+		--do_eval \
+		--per_gpu_eval_batch_size=16 \
+		--logging_steps=100 \
+		--seed=42 \
+		--early_eval_stop=1000
+
+eval-all-ts:
+	python -u code/run_lm.py \
+		--data_dir=${TSDATADIR} \
+		--lit_file=${TSLITFILE} \
+		--langs=${TSLANG} \
+		--output_dir=save/not-tuned/eval-none-ts \
+		--pretrain_dir=${PYPRETRAINDIR} \
+		--log_file=logs/eval_all_py.log \
+		--model_type=gpt2 \
+		--block_size=1024 \
+		--do_eval \
+		--per_gpu_eval_batch_size=16 \
+		--logging_steps=100 \
+		--seed=42 \
+		--early_eval_stop=1000
