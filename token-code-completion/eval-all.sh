@@ -24,25 +24,26 @@ eval_model() {
     --do_eval \
     --per_gpu_eval_batch_size=16 \
     --logging_steps=100 \
-    --seed=42
+    --seed=42 \
+    --early_eval_stop=1000
 }
 
 # Pretrained on Python, finetuned on Python
-(eval_model py150 python py150 || echo "Failed to evaluate model pretrained on Python and finetuned on Python on Python dataset"); \
-(eval_model py150 javascript javascriptAxolotl || echo "Failed to evaluate model pretrained on Python and finetuned on Python on Javascript dataset"); \
-(eval_model py150 typescript typescriptAxolotl || echo "Failed to evaluate model pretrained on Python and finetuned on Python on Typescript dataset"); \
+#(eval_model py150 python py150 || echo "Failed to evaluate model pretrained on Python and finetuned on Python on Python dataset"); \
+#(eval_model py150 javascript javascriptAxolotl || echo "Failed to evaluate model pretrained on Python and finetuned on Python on Javascript dataset"); \
+#(eval_model py150 typescript typescriptAxolotl || echo "Failed to evaluate model pretrained on Python and finetuned on Python on Typescript dataset"); \
 (eval_model small-py-adapted_javascriptAxolotl python py150 || echo "Failed to evaluate model pretrained on Python and finetuned on Javascript on Python dataset"); \
-(eval_model small-py-adapted_javascriptAxolotl javascript javascriptAxolotl || echo "Failed to evaluate model pretrained on Python and finetuned on Javascript on Javascript dataset"); \
-(eval_model small-py-adapted_javascriptAxolotl typescript typescriptAxolotl  || echo "Failed to evaluate model pretrained on Python and finetuned on Javascript on Typescript dataset"); \
-(eval_model small-py-adapted_typescriptAxolotl python py150 || echo "Failed to evaluate model pretrained on Python and finetuned on Typescript on Python dataset"); \
-(eval_model small-py-adapted_typescriptAxolotl javascript javascriptAxolotl || echo "Failed to evaluate model pretrained on Python and finetuned on Typescript on Javascript dataset"); \
-(eval_model small-py-adapted_typescriptAxolotl typescript typescriptAxolotl ||  echo "Failed to evaluate model pretrained on Python and finetuned on Typescript on Typescript dataset"); \
-(eval_model typescriptAxolotl python py150 || echo "Failed to evaluate model pretrained on Java and finetuned on Typescript on Python dataset"); \
-(eval_model typescriptAxolotl javascript javascriptAxolotl || echo "Failed to evaluate model pretrained on Java and finetuned on Typescript on Javascript dataset"); \
-(eval_model typescriptAxolotl typescript typescriptAxolotl || echo "Failed to evaluate model pretrained on Java and finetuned on Javascript on Typescript dataset"); \
-(eval_model javascriptAxolotl python py150 || echo "Failed to evaluate model pretrained on Java and finetuned on Javascript on Python dataset"); \
-(eval_model javascriptAxolotl javascript javascriptAxolotl || echo "Failed to evaluate model pretrained on Java and finetuned on Javascript on Javascript dataset"); \
-(eval_model javascriptAxolotl typescript typescriptAxolotl || echo "Failed to evaluate model pretrained on Java and finetuned on Javascript on Typescript dataset"); \
+#(eval_model small-py-adapted_javascriptAxolotl javascript javascriptAxolotl || echo "Failed to evaluate model pretrained on Python and finetuned on Javascript on Javascript dataset"); \
+#(eval_model small-py-adapted_javascriptAxolotl typescript typescriptAxolotl  || echo "Failed to evaluate model pretrained on Python and finetuned on Javascript on Typescript dataset"); \
+#(eval_model small-py-adapted_typescriptAxolotl python py150 || echo "Failed to evaluate model pretrained on Python and finetuned on Typescript on Python dataset"); \
+#(eval_model small-py-adapted_typescriptAxolotl javascript javascriptAxolotl || echo "Failed to evaluate model pretrained on Python and finetuned on Typescript on Javascript dataset"); \
+#(eval_model small-py-adapted_typescriptAxolotl typescript typescriptAxolotl ||  echo "Failed to evaluate model pretrained on Python and finetuned on Typescript on Typescript dataset"); \
+#(eval_model typescriptAxolotl python py150 || echo "Failed to evaluate model pretrained on Java and finetuned on Typescript on Python dataset"); \
+#(eval_model typescriptAxolotl javascript javascriptAxolotl || echo "Failed to evaluate model pretrained on Java and finetuned on Typescript on Javascript dataset"); \
+#(eval_model typescriptAxolotl typescript typescriptAxolotl || echo "Failed to evaluate model pretrained on Java and finetuned on Javascript on Typescript dataset"); \
+#(eval_model javascriptAxolotl python py150 || echo "Failed to evaluate model pretrained on Java and finetuned on Javascript on Python dataset"); \
+#(eval_model javascriptAxolotl javascript javascriptAxolotl || echo "Failed to evaluate model pretrained on Java and finetuned on Javascript on Javascript dataset"); \
+#(eval_model javascriptAxolotl typescript typescriptAxolotl || echo "Failed to evaluate model pretrained on Java and finetuned on Javascript on Typescript dataset"); \
 echo "Done!"
 
 

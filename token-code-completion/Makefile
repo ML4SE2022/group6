@@ -228,7 +228,24 @@ eval-all-py:
 		--do_eval \
 		--per_gpu_eval_batch_size=16 \
 		--logging_steps=100 \
-		--seed=42
+		--seed=42 \
+		--early_eval_stop=1000
+
+eval-js-ts-on-py:
+	python -u code/run_lm.py \
+		--data_dir=${PYDATADIR} \
+		--lit_file=${PYLITFILE} \
+		--langs=${PYLANG} \
+		--output_dir=save/cross/eval-js-ts-on-py \
+		--pretrain_dir=save/cross/js-ts/checkpoint-last \
+		--log_file=logs/eval_js_ts_on_py.log \
+		--model_type=gpt2 \
+		--block_size=1024 \
+		--do_eval \
+		--per_gpu_eval_batch_size=16 \
+		--logging_steps=100 \
+		--seed=42 \
+		--early_eval_stop=1000
 
 eval-all-js:
 	python -u code/run_lm.py \
@@ -243,7 +260,24 @@ eval-all-js:
 		--do_eval \
 		--per_gpu_eval_batch_size=16 \
 		--logging_steps=100 \
-		--seed=42
+		--seed=42 \
+		--early_eval_stop=1000
+
+eval-js-ts-on-js:
+	python -u code/run_lm.py \
+		--data_dir=${JSDATADIR} \
+		--lit_file=${JSLITFILE} \
+		--langs=${JSLANG} \
+		--output_dir=save/cross/eval-js-ts-on-js \
+		--pretrain_dir=save/cross/js-ts/checkpoint-last \
+		--log_file=logs/eval_js_ts_on_js.log \
+		--model_type=gpt2 \
+		--block_size=1024 \
+		--do_eval \
+		--per_gpu_eval_batch_size=16 \
+		--logging_steps=100 \
+		--seed=42 \
+		--early_eval_stop=1000
 
 eval-all-ts:
 	python -u code/run_lm.py \
@@ -258,4 +292,21 @@ eval-all-ts:
 		--do_eval \
 		--per_gpu_eval_batch_size=16 \
 		--logging_steps=100 \
-		--seed=42
+		--seed=42 \
+		--early_eval_stop=1000
+
+eval-js-ts-on-ts:
+	python -u code/run_lm.py \
+		--data_dir=${TSDATADIR} \
+		--lit_file=${TSLITFILE} \
+		--langs=${TSLANG} \
+		--output_dir=save/cross/eval-js-ts-on-ts \
+		--pretrain_dir=save/cross/js-ts/checkpoint-last \
+		--log_file=logs/eval_js_ts_on_ts.log \
+		--model_type=gpt2 \
+		--block_size=1024 \
+		--do_eval \
+		--per_gpu_eval_batch_size=16 \
+		--logging_steps=100 \
+		--seed=42 \
+		--early_eval_stop=1000

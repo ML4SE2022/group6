@@ -388,7 +388,7 @@ def eval_acc(args, model, tokenizer, file_type='test'):
 
     for step, batch in enumerate(eval_dataloader):
         
-        if args.early_eval_stop > 0 and step >= args.early_eval_stop: break
+        if args.early_eval_stop > 0 and step > args.early_eval_stop: break
 
         inputs = batch.to(args.device)
 
@@ -399,6 +399,7 @@ def eval_acc(args, model, tokenizer, file_type='test'):
 
         all_pred = []
         all_gt = []
+        all_total = 0
         prev_pred = None
         for pred, gt in zip(pred_ids, inputs):
             pred = pred.cpu().tolist()
@@ -454,16 +455,17 @@ def eval_acc(args, model, tokenizer, file_type='test'):
         for x, y in zip(all_pred, all_gt):
             if y not in ["<s>", "</s>", "<EOL>", "<pad>"]:
                 total += 1
+                all_total += 1
                 if x == y:
                     correct += 1
                 else:
-                    edit_sim_total = levenshtein_distance(x, y)
+                    edit_sim_total += levenshtein_distance(x, y)
 
 
         if step % args.logging_steps == 0:
-            edit_sim = edit_sim_total / total
+            edit_sim = edit_sim_total / all_total
             logger.info(f"{step} are done!")
-            logger.info(f"{total}, Acc: {correct/total}. Edit sim: {edit_sim}")
+            logger.info(f"{total} (this batch: {all_total}), Acc: {correct/total}. Edit sim: {edit_sim}")
 
     # pickle.dump(total_pred, open(os.path.join(args.output_dir, "preds.pkl"), "wb"))
     # pickle.dump(total_gt, open(os.path.join(args.output_dir, "gts.pkl"), "wb"))
@@ -506,7 +508,8 @@ def post_process(args, preds, gts, true_gts, saved_file):
             gt_str = " ".join(new_gt)
             pred_str = " ".join(new_pred)
             if gt_str != true_gts[cnt].strip():
-                print("{cnt} sample gt_str != true_gt")
+               # print("{cnt} sample gt_str != true_gt")
+                ignore = gt_str != true_gt # Just to make the compiler happy
             else:
                 wf.write(pred_str+"\n")
             cnt += 1
