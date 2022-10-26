@@ -312,7 +312,7 @@ eval-js-ts-on-ts:
 		--early_eval_stop=1000
 
 
-eval-all-py:
+eval-none-py:
 	python -u code/run_lm.py \
 		--data_dir=${PYDATADIR} \
 		--lit_file=${PYLITFILE} \
@@ -328,7 +328,7 @@ eval-all-py:
 		--seed=42 \
 		--early_eval_stop=1000
 
-eval-all-js:
+eval-none-js:
 	python -u code/run_lm.py \
 		--data_dir=${JSDATADIR} \
 		--lit_file=${JSLITFILE} \
@@ -344,7 +344,7 @@ eval-all-js:
 		--seed=42 \
 		--early_eval_stop=1000
 
-eval-all-ts:
+eval-none-ts:
 	python -u code/run_lm.py \
 		--data_dir=${TSDATADIR} \
 		--lit_file=${TSLITFILE} \
