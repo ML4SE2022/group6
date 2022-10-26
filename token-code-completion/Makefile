@@ -18,6 +18,11 @@ LITFILE=${PYLITFILE}
 OUTPUTDIR=save/eval/${DATASET}
 LOGFILE=logs/token_eval_${LANG}.log
 
+JAVALANG=java
+JAVADATASET=javaCorpus
+JAVADATADIR=dataset/${JAVADATASET}/token_completion
+JAVALITFILE=dataset/${JAVADATASET}/literals.json
+JAVAOUTPUTDIR=save/${JAVADATASET}
 JAVAPRETRAINDIR=microsoft/CodeGPT-small-java-adaptedGPT2
 
 TSLANG=typescript
@@ -319,7 +324,7 @@ eval-none-py:
 		--langs=${PYLANG} \
 		--output_dir=save/not-tuned/eval-none-py \
 		--pretrain_dir=${PYPRETRAINDIR} \
-		--log_file=logs/eval_all_py.log \
+		--log_file=logs/eval_none_py.log \
 		--model_type=gpt2 \
 		--block_size=1024 \
 		--do_eval \
@@ -335,7 +340,7 @@ eval-none-js:
 		--langs=${JSLANG} \
 		--output_dir=save/not-tuned/eval-none-js \
 		--pretrain_dir=${PYPRETRAINDIR} \
-		--log_file=logs/eval_all_py.log \
+		--log_file=logs/eval_none_js.log \
 		--model_type=gpt2 \
 		--block_size=1024 \
 		--do_eval \
@@ -351,7 +356,23 @@ eval-none-ts:
 		--langs=${TSLANG} \
 		--output_dir=save/not-tuned/eval-none-ts \
 		--pretrain_dir=${PYPRETRAINDIR} \
-		--log_file=logs/eval_all_py.log \
+		--log_file=logs/eval_none_ts.log \
+		--model_type=gpt2 \
+		--block_size=1024 \
+		--do_eval \
+		--per_gpu_eval_batch_size=16 \
+		--logging_steps=100 \
+		--seed=42 \
+		--early_eval_stop=1000
+
+eval-java-java:
+	python -u code/run_lm.py \
+		--data_dir=${JAVADATADIR} \
+		--lit_file=${JAVALITFILE} \
+		--langs=${JAVALANG} \
+		--output_dir=save/java/eval-java-java \
+		--pretrain_dir=${JAVAPRETRAINDIR} \
+		--log_file=logs/eval-java-java.log \
 		--model_type=gpt2 \
 		--block_size=1024 \
 		--do_eval \
