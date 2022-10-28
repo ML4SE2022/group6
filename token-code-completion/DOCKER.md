@@ -1,6 +1,13 @@
 
 ## Docker
 
+## Prerequisites
+
+- Install NVidia drivers from [here](https://www.nvidia.com/Download/index.aspx?lang=en-us)
+- Install docker
+- Make sure `nvidia-container-toolkit` is installed
+- Any nvidia driver issues are left as an exersise to the reader
+- 
 
 #### Dataset
 Build dataset creator with the following command: (this is quick)
