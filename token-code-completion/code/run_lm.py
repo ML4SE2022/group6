@@ -344,6 +344,7 @@ def eval_acc(args, model, tokenizer, file_type='test'):
 
     I use this trick to speed up evaluation due to the large test set.
     """
+    logger.info("Starting evaluation")
     eval_dataset = EvalDataset(tokenizer, args, logger, file_type=file_type, block_size=args.block_size)
 
     args.eval_batch_size = args.per_gpu_eval_batch_size * max(1, args.n_gpu)
@@ -385,6 +386,8 @@ def eval_acc(args, model, tokenizer, file_type='test'):
 
     total_pred = []
     total_gt = []
+
+    logger.info("Start enumeration...")
 
     for step, batch in enumerate(eval_dataloader):
         

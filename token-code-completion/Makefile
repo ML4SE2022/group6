@@ -380,3 +380,30 @@ eval-java-java:
 		--logging_steps=100 \
 		--seed=42 \
 		--early_eval_stop=1000
+
+
+java-train-token:
+	python -m torch.distributed.launch --nproc_per_node=1 code/run_lm.py \
+		--data_dir=${JAVADATADIR} \
+		--lit_file=${JAVALITFILE} \
+		--langs=${JAVALANG} \
+		--output_dir=${JAVAOUTPUTDIR} \
+		--pretrain_dir=${JAVAPRETRAINDIR} \
+		--log_file=logs/java-train.log \
+		--model_type=gpt2 \
+		--block_size=1024 \
+		--do_train \
+		--gpu_per_node=1 \
+		--learning_rate=8e-5 \
+		--weight_decay=0.01 \
+		--evaluate_during_training \
+		--per_gpu_train_batch_size=2 \
+		--per_gpu_eval_batch_size=4 \
+		--gradient_accumulation_steps=4 \
+		--num_train_epochs=5 \
+		--logging_steps=500 \
+		--save_steps=10000 \
+		--seed=42 \
+		--overwrite_output_dir \
+		--not_pretrain \
+		--early_train_stop=1000
