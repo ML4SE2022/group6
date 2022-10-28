@@ -11,15 +11,22 @@ Code completion is a one of the most widely used features in software developmen
 
 ## Download links to our datasets and models
 ### Datasets
+The datasets for `py150` and `javaCorpus` are not created by us, [follow these steps](https://github.com/microsoft/CodeXGLUE/tree/main/Code-Code/CodeCompletion-token#dataset) to download and preprocess those datasets.
+Our datasets can be found here, they should be saved as is in the `dataset` folder, they should override the files in the folders you have locally, if you have already downloaded the datasets.
+* [Pre-processed and tokenized JavaScript dataset](https://drive.google.com/file/d/1O_F_6YFZYzpn4S__vHWd27_ZK8mVVzlx/view?usp=sharing)
+* [Pre-processed and tokenized TypeScript dataset](https://drive.google.com/file/d/1RqcvAIh7WACZpKDe1-oMxhg-d2rk8zVk/view?usp=sharing)
 
 ### Pre-trained models
-Download these zip files, and extract their contents as it is to the `save` directory.
+Download these zip files, and extract their contents as is to the `save` directory.
+The below files are for the single language models.
 
 * [Pre-trained on Python, fine-tuned on python](https://drive.google.com/file/d/1uLFPrNgE1h7VjB-KUpwCuaRP61aaGb8R/view?usp=sharing)
 * [Pre-trained on Python, fine-tuned on JavaScript](https://drive.google.com/file/d/1NpP4wdGxwnK6PbFZ90UePFD3g53c1zU_/view?usp=sharing)
 * [Pre-trained on Python, fine-tuned on TypeScript](https://drive.google.com/file/d/1fbreN-qZeG2LvViKAlgE_N3esce-WwnY/view?usp=sharing)
 * [Pre-trained on Java, fine-tuned on JavaScript](https://drive.google.com/file/d/1S-T-ZFkmA5uTvn7hkfsWkfK9uPqMcgwB/view?usp=sharing)
 * [Pre-trained on Java, fine-tuned on TypeScript](https://drive.google.com/file/d/1C1dzx0_iPK_m9HjKI92bvLBohtcedaR3/view?usp=sharing)
+* [Pre-trained on Python, fine-tuned on JavaScript then TypeScript](https://drive.google.com/file/d/1w6kmN1GXu_eyqRyHnMSEIATfsqqW0jEn/view?usp=sharing)
+* [Pre-trained on Python, fine-tuned on JavaScript then TypeScript then Python](https://drive.google.com/file/d/1KB7-7vJBWthbPyuPs2k03SjD3sojbyiP/view?usp=sharing)
 
 
 ## Docker

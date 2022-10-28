@@ -5,3 +5,5 @@ code/__pycache__/
 save/py150/
 
 **/token_completion
+
+**/*.DS_STORE
