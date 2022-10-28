@@ -22,4 +22,4 @@ Build the training image with the following command where `CUDA_VERSION` can be 
 > `docker build -t token_completion . --build-arg CUDA_VERSION=[CUDA_VERSION]`
 
 Run the trainer with the following command where `MAKE_TARGET` is a target from [Makefile](Makefile): 
-> `docker run --mount type=bind,source=$(pwd)/dataset,target=/dataset token_completion [MAKE_TARGET]`
+> `docker run --gpus all --mount type=bind,source=$(pwd)/dataset,target=/dataset --mount type=bind,source=$(pwd)/logs,target=/logs token_completion [MAKE_TARGET]`
