@@ -6,6 +6,7 @@ from token import STRING, NUMBER, NEWLINE, NL, COMMENT, INDENT, ENCODING, ENDMAR
 from tokenize import tokenize
 
 from datasets import load_dataset
+from tqdm import tqdm
 
 SUBSET_SIZE = 10000
 SHUFFLE_SEED = 42
@@ -22,16 +23,16 @@ OUTPUT_FILE_TRAIN_NO_DEV_TXT = f'{FILES_OUTPUT_DIR}/{DATASET_NAME}_train_no_dev.
 
 
 def download():
-    if os.path.exists(FILES_OUTPUT_DIR):
-        print(f'Output files dir already exists: {FILES_OUTPUT_DIR}')
-        print(f'Do you want to continue? (This will remove all the files) [y/n]')
-        choice = input().lower()
-        if choice.startswith('y'):
-            print('Removing files...')
-            os.system(f'rm -rf {FILES_OUTPUT_DIR}')
-        else:
-            print('Exiting...')
-            return exit(0)
+    # if os.path.exists(FILES_OUTPUT_DIR):
+    #     print(f'Output files dir already exists: {FILES_OUTPUT_DIR}')
+    #     print(f'Do you want to continue? (This will remove all the files) [y/n]')
+    #     choice = input().lower()
+    #     if choice.startswith('y'):
+    #         print('Removing files...')
+    os.system(f'rm -rf {FILES_OUTPUT_DIR}')
+        # else:
+        #     print('Exiting...')
+        #     return exit(0)
 
     os.makedirs(FILES_DATA_TRAIN_DIR, exist_ok=True)
     os.makedirs(FILES_DATA_TEST_DIR, exist_ok=True)
@@ -56,7 +57,7 @@ def download():
     iterator = iter(shuffled_test)
 
     with open(OUTPUT_FILE_TEST_TXT, 'w') as f:
-        for i in range(SUBSET_SIZE):
+        for i in tqdm(range(SUBSET_SIZE)):
             next_file = next(iterator)
             filename = f'{i:05d}.js'
             filepath = f'{FILES_DATA_DIR}/test/{filename}'
@@ -105,7 +106,7 @@ def js_tokenize(args, file_name, file_type):
         file_paths = file_paths_f.readlines()
 
     with open(os.path.join(args.output_dir, f"{file_type}.txt"), 'w') as wf:
-        for ct, path in enumerate(file_paths):
+        for ct, path in tqdm(enumerate(file_paths)):
             try:
                 code_file = open(path.strip(), 'r')
                 code = code_file.read()
@@ -145,10 +146,11 @@ def js_tokenize(args, file_name, file_type):
                 out = " ".join(out_tokens)
                 wf.write(out + '\n')
             except Exception as e:
-                print(f"Error processing {path.strip()}: {e}")
+                # print(f"Error processing {path.strip()}: {e}")
+                pass
 
-            if ct % 100 == 0:
-                print(f'{file_type}: {ct} are done')
+            # if ct % 100 == 0:
+            #     print(f'{file_type}: {ct} are done')
 
 
 def preprocess(args):

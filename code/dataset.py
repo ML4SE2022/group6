@@ -211,7 +211,7 @@ class EvalDataset(Dataset):
             sample = input_ids[i: i+block_size]
             if len(sample) == block_size:
                 for j in range(block_size):
-                    if tokenizer.convert_ids_to_tokens(sample[block_size-1-j])[0] == '\u0120':
+                    if tokenizer.convert_ids_to_tokens(sample[block_size-1-j])[0] == '\u0120' or tokenizer.convert_ids_to_tokens(sample[block_size-1-j]).startswith("<NUM_LIT"):
                         break
                     if sample[block_size-1-j] in [tokenizer.bos_token_id, tokenizer.eos_token_id, tokenizer.sep_token_id]:
                         if sample[block_size-1-j] != tokenizer.bos_token_id:
