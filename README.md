@@ -9,8 +9,21 @@ Predict next code token given context of previous tokens. Models are evaluated b
 
 Code completion is a one of the most widely used features in software development through IDEs. An effective code completion tool could improve software developers' productivity. We provide code completion evaluation tasks in two granularities -- token level and line level. Here we introduce token level code completion. Token level task is analogous to language modeling. Models should have be able to predict the next token in arbitary types.
 
+## Download links to our datasets and models
+### Datasets
+
+### Pre-trained models
+Download these zip files, and extract their contents as it is to the `save` directory.
+
+* [Pre-trained on Python, fine-tuned on python](https://drive.google.com/file/d/1uLFPrNgE1h7VjB-KUpwCuaRP61aaGb8R/view?usp=sharing)
+* [Pre-trained on Python, fine-tuned on JavaScript](https://drive.google.com/file/d/1NpP4wdGxwnK6PbFZ90UePFD3g53c1zU_/view?usp=sharing)
+* [Pre-trained on Python, fine-tuned on TypeScript](https://drive.google.com/file/d/1fbreN-qZeG2LvViKAlgE_N3esce-WwnY/view?usp=sharing)
+* [Pre-trained on Java, fine-tuned on JavaScript](https://drive.google.com/file/d/1S-T-ZFkmA5uTvn7hkfsWkfK9uPqMcgwB/view?usp=sharing)
+* [Pre-trained on Java, fine-tuned on TypeScript](https://drive.google.com/file/d/1C1dzx0_iPK_m9HjKI92bvLBohtcedaR3/view?usp=sharing)
+
 
 ## Docker
+Use these steps to easily run the code in a docker container.
 
 ## Prerequisites
 
@@ -18,14 +31,24 @@ Code completion is a one of the most widely used features in software developmen
 - Install docker
 - Make sure `nvidia-container-toolkit` is installed
 - Any nvidia driver issues are left as an exersise to the reader
-- 
 
 #### Dataset
 Build dataset creator with the following command: (this is quick)
 > ```docker build -t dataset -f dataset.Dockerfile .```
 
-Run dataset collector with the following command: (this is slow)
-> `docker run --mount type=bind,source=$(pwd)/dataset,target=/dataset dataset`
+Run dataset collector with the following command: (this is slow, like really slow)
+If you see the following lines:
+```text
+...
+data/despawnerer/summarize/summarize/
+data/despawnerer/summarize/summarize/__init__.py
+data/despawnerer/summarize/summarize/language.py
+data/despawnerer/summarize/summarize/summarize.py
+data/despawnerer/summarize/setup.py
+```
+It's not stuck! It's just running the tokenizers.
+
+> `docker run --mount type=bind,source="$(pwd)"/dataset,target=/dataset dataset`
 
 #### Training
 
@@ -39,24 +62,10 @@ Or run everything we got!
 
 > `docker run --gpus all --mount type=bind,source=$(pwd)/dataset--mount type=bind,source=$(pwd)/save,target=/save,target=/save --mount type=bind,source=$(pwd)/logs,target=/logs --entrypoint bash token_completion [eval-all.sh | run-all.sh]`
 
-## Local Installation
+#### Expected results
 
-First install the dependencies using poetry:
+In order to read the results, if everything went well, you can find them in the last row of the respective log file in the `logs` folder.
 
-```bash
-poetry install
-```
+<img src="images/java-results.png" width="500px" />
 
-## Dataset
-TODO add links
-
-## Fine-tuned models
-TODO add links
-
-
-## Running the code
-
-Most of the commands used to generate our results can be found as targets in the `Makefile`. To replicate our results:
-
-- If you want to fine-tune the pre-trained models, first make sure you have all the datasets downloaded. Then, run the `run-all.sh` bash script.
-- If you want to evaluate, do the previous step or make sure you have downloaded our fine-tuned models. Then, run the `eval-all.sh` bash script.
+<img src="images/python-results.png" width="500px" />
