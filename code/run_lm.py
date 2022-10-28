@@ -36,7 +36,6 @@ from torch.utils.data.distributed import DistributedSampler
 from dataset import TextDataset, finetuneDataset, EvalDataset, lineDataset
 from beam import Beam
 
-from fuzzywuzzy import fuzz
 from transformers import (WEIGHTS_NAME, AdamW, get_linear_schedule_with_warmup,
                           BertConfig, BertForMaskedLM, BertTokenizer,
                           GPT2Config, GPT2LMHeadModel, GPT2Tokenizer,
@@ -208,58 +207,64 @@ def train(args, train_dataset, model, tokenizer, fh, pool):
                     tr_nb=global_step
 
                 if args.local_rank in [-1, 0] and args.save_steps > 0 and global_step % args.save_steps == 0:
-                    checkpoint_prefix = "checkpoint"
-                    # Save model checkpoint
-                    if args.evaluate_during_training:  # Only evaluate when single GPU otherwise metrics may not average well
-                        results = evaluate(args, model, tokenizer, eval_when_training=True)
-                        for key, value in results.items():
-                            logger.info("  %s = %s", key, round(value,4))                    
-                        output_dir = os.path.join(args.output_dir, '{}-{}-{}'.format(checkpoint_prefix, global_step, round(results['perplexity'],4)))
-                    else:
-                        output_dir = os.path.join(args.output_dir, "{}-{}".format(checkpoint_prefix, global_step))
-                    if not os.path.exists(output_dir):
-                        os.makedirs(output_dir)
-                    model_to_save = (
-                        model.module if hasattr(model, "module") else model
-                    )  # Take care of distributed/parallel training
-                    if args.model_type == "rnn":
-                        torch.save(model_to_save.state_dict(), os.path.join(output_dir, "model.pt"))
-                    else:
-                        model_to_save.save_pretrained(output_dir)
-                    tokenizer.save_pretrained(output_dir)
+                    save_checkpoint(args, model, tokenizer, optimizer, global_step)
 
-                    torch.save(args, os.path.join(output_dir, "training_args.bin"))
-                    logger.info("Saving model checkpoint to %s", output_dir)
-
-                    # _rotate_checkpoints(args, checkpoint_prefix)
-                    last_output_dir = os.path.join(args.output_dir, 'checkpoint-last')
-                    if not os.path.exists(last_output_dir):
-                        os.makedirs(last_output_dir)
-                    if args.model_type == "rnn":
-                        torch.save(model_to_save.state_dict(), os.path.join(last_output_dir, "model.pt"))
-                    else:
-                        model_to_save.save_pretrained(last_output_dir)
-                    tokenizer.save_pretrained(last_output_dir)
-                    idx_file = os.path.join(last_output_dir, 'idx_file.txt')
-                    with open(idx_file, 'w', encoding='utf-8') as idxf:
-                        idxf.write(str(0) + '\n')
-
-                    torch.save(optimizer.state_dict(), os.path.join(last_output_dir, "optimizer.pt"))
-                    # torch.save(scheduler.state_dict(), os.path.join(last_output_dir, "scheduler.pt"))
-                    logger.info("Saving optimizer and scheduler states to %s", last_output_dir)
-
-                    step_file = os.path.join(last_output_dir, 'step_file.txt')
-                    with open(step_file, 'w', encoding='utf-8') as stepf:
-                        stepf.write(str(global_step) + '\n')
-                    
-
-            if args.max_steps > 0 and global_step > args.max_steps:
-                break
-        if args.max_steps > 0 and global_step > args.max_steps:
-            break
-
+            if args.early_train_stop > 0 and step >= args.early_train_stop: break
+            if args.max_steps > 0 and global_step > args.max_steps: break
+        
+        if args.early_train_stop > 0 and step >= args.early_train_stop: break
+        if args.max_steps > 0 and global_step > args.max_steps: break
+        
+    # Save final checkpoint
+    save_checkpoint(args, model, tokenizer, optimizer, global_step)
+    
     return global_step, tr_loss / global_step
 
+
+def save_checkpoint(args, model, tokenizer, optimizer, global_step):
+    checkpoint_prefix = "checkpoint"
+    # Save model checkpoint
+    if args.evaluate_during_training:  # Only evaluate when single GPU otherwise metrics may not average well
+        results = evaluate(args, model, tokenizer, eval_when_training=True)
+        for key, value in results.items():
+            logger.info("  %s = %s", key, round(value,4))                    
+        output_dir = os.path.join(args.output_dir, '{}-{}-{}'.format(checkpoint_prefix, global_step, round(results['perplexity'],4)))
+    else:
+        output_dir = os.path.join(args.output_dir, "{}-{}".format(checkpoint_prefix, global_step))
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    model_to_save = (
+        model.module if hasattr(model, "module") else model
+    )  # Take care of distributed/parallel training
+    if args.model_type == "rnn":
+        torch.save(model_to_save.state_dict(), os.path.join(output_dir, "model.pt"))
+    else:
+        model_to_save.save_pretrained(output_dir)
+    tokenizer.save_pretrained(output_dir)
+
+    torch.save(args, os.path.join(output_dir, "training_args.bin"))
+    logger.info("Saving model checkpoint to %s", output_dir)
+
+    # _rotate_checkpoints(args, checkpoint_prefix)
+    last_output_dir = os.path.join(args.output_dir, 'checkpoint-last')
+    if not os.path.exists(last_output_dir):
+        os.makedirs(last_output_dir)
+    if args.model_type == "rnn":
+        torch.save(model_to_save.state_dict(), os.path.join(last_output_dir, "model.pt"))
+    else:
+        model_to_save.save_pretrained(last_output_dir)
+    tokenizer.save_pretrained(last_output_dir)
+    idx_file = os.path.join(last_output_dir, 'idx_file.txt')
+    with open(idx_file, 'w', encoding='utf-8') as idxf:
+        idxf.write(str(0) + '\n')
+
+    torch.save(optimizer.state_dict(), os.path.join(last_output_dir, "optimizer.pt"))
+    # torch.save(scheduler.state_dict(), os.path.join(last_output_dir, "scheduler.pt"))
+    logger.info("Saving optimizer and scheduler states to %s", last_output_dir)
+
+    step_file = os.path.join(last_output_dir, 'step_file.txt')
+    with open(step_file, 'w', encoding='utf-8') as stepf:
+        stepf.write(str(global_step) + '\n')
 
 def evaluate(args, model, tokenizer, prefix="", eval_when_training=False):
     # Loop to handle MNLI double evaluation (matched, mis-matched)
@@ -314,12 +319,46 @@ def evaluate(args, model, tokenizer, prefix="", eval_when_training=False):
 
     return result
 
-def eval_line_completion(args, model, tokenizer, file_type='test'):
+def eval_acc(args, model, tokenizer, file_type='test'):
     """
-    Evaluate line level code completion on exact match and edit similarity.
+    Evaluate token level code completion on accuracy.
 
-    It is recommanded to use single GPU because it could not be batched.
+    This function can only used to evaluate accuracy, but not inference, because the inputs are previous sub-tokens but not tokens.
+    But it can be guaranteed that the accuracy in this function is the same as the real token level completion.
+    The reason is:
+    Assuming the inputs are "context_len = 100 <EOL> masks = np . zeros (", and the ground truth is "context_len".
+    Due to our bpe encoding, the model have to outputs "context", "_" and "len" in 3 time step, i.e. gt0="context", gt1="_", gt2="len".
+    In a real inference scenario:
+    time step 0, inputs "context_len = 100 <EOL> masks = np . zeros ( ", model outputs: out0;
+    time step 1, inputs: in1=out0, outputs: out1
+    ... until the model outputs a complete token
+    But in this function, no matter out0 is, in1=gt0="context".
+    That is to say, in this function, we feed ground truth but not output sub-token when we predict the next token which is split by bpe.
+    So obviouly we would get different predictions from the real token completion scenario.
+    However, if we calculate token leval accuracy, 
+    if and only if the model predicts every sub-token correctly, the complete token can be seen correct.
+    In this situation, out0==gt0, out1==gt1, so it doesn't matter we feed gt or output to model.
+    In summary, this function can make models oupout the same complete token if this token equals to ground truth, 
+    if not, the model might predict a different token from the real completion scenario, but all wrong.
+    So it would not affect the token level accuracy.
+
+    I use this trick to speed up evaluation due to the large test set.
     """
+    logger.info("Starting evaluation")
+    eval_dataset = EvalDataset(tokenizer, args, logger, file_type=file_type, block_size=args.block_size)
+
+    args.eval_batch_size = args.per_gpu_eval_batch_size * max(1, args.n_gpu)
+    eval_sampler = SequentialSampler(eval_dataset) if args.local_rank == -1 else DistributedSampler(eval_dataset)
+    eval_dataloader = DataLoader(eval_dataset, sampler=eval_sampler, batch_size=args.eval_batch_size)
+    model.to(args.device)
+    # multi-gpu training (should be after apex fp16 initialization)
+    if args.n_gpu > 1:
+        model = torch.nn.DataParallel(model)
+
+    # Distributed training (should be after apex fp16 initialization)
+    if args.local_rank != -1:
+        model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank%args.gpu_per_node],
+                                                          output_device=args.local_rank%args.gpu_per_node)
 
     def DecodeIds(idxs):
         codes = ""
@@ -338,108 +377,129 @@ def eval_line_completion(args, model, tokenizer, file_type='test'):
             else:
                 codes += to_add
         return codes.strip(" ")
+    
 
-    pickled_tokenized_dataset_file = args.data_dir + '/tokenized.pkl'
-    if os.path.exists(pickled_tokenized_dataset_file):
-        with open(pickled_tokenized_dataset_file, 'rb') as dataset_pickled_read:
-            logger.info('Loading tokenized dataset from pickle file...')
-            dataset = pickle.load(dataset_pickled_read)
-    else:
-        logger.info('Tokenizing dataset (this may take a very long time!)...')
-        dataset = lineDataset(tokenizer, args, logger, file_type=file_type, block_size=args.block_size-100)
-        logger.info('Saving tokenized dataset to pickle file...')
-        pickle.dump(dataset, open(pickled_tokenized_dataset_file, 'wb'))
-
-
-    test_sampler = SequentialSampler(dataset)
-    test_dataloader = DataLoader(dataset, sampler=test_sampler, batch_size=1)
-    model.to(args.device)
-    # model.zero_grad()
     model.eval()
 
-    def repackage_hidden(h):
-        """Wraps hidden states in new Tensors, to detach them from their history."""
-        if isinstance(h, torch.Tensor):
-            return h.detach()
-        else:
-            return tuple(repackage_hidden(v) for v in h)
+    correct = 0.0
+    total = 0
 
-    if args.langs == "python":
-        break_ids = [tokenizer.sep_token_id]
-    else:
-        break_ids = [tokenizer.convert_tokens_to_ids('Ġ;'), tokenizer.convert_tokens_to_ids('Ġ}'), tokenizer.convert_tokens_to_ids('Ġ{')]
-    preds = []
-    gts = []
-    edit_sim = 0.0
-    em = 0.0
+    total_pred = []
+    total_gt = []
 
-    print("Starting evaluation...")
+    logger.info("Start enumeration...")
 
-    for step, (inputs, gt) in enumerate(test_dataloader):
+    for step, batch in enumerate(eval_dataloader):
         
-        if args.early_eval_stop > 0 and step >= args.early_eval_stop: break
+        if args.early_eval_stop > 0 and step > args.early_eval_stop: break
 
-        inputs = inputs.to(args.device)
+        inputs = batch.to(args.device)
+
         with torch.no_grad():
-            beam_size = 5
-            m = torch.nn.LogSoftmax(dim=-1)
-            outputs = model(inputs[:, :-1])[1]
-            p = []       
-            zero = torch.cuda.LongTensor(1).fill_(0)
-            for i in range(inputs.shape[0]):
-                if args.model_type == "rnn":
-                    past_hidden = tuple(x[:, i:i+1].expand(-1, beam_size, -1).contiguous() for x in outputs)
-                else:
-                    past = [torch.cat([x[0].unsqueeze(0),x[1].unsqueeze(0)],dim=0) if type(x)==tuple else x for x in outputs]
-                    past_hidden = [x[:, i:i+1].expand(-1, beam_size, -1, -1, -1) for x in past]
-                beam = Beam(beam_size, inputs[i][-1].cpu().data, break_ids)
-                input_ids = None
-                for _ in range(100): 
-                    if beam.done():
-                        break
-                    input_ids = beam.getCurrentState()
-                    if args.model_type == "rnn":
-                        outputs = model(input_ids, hidden=repackage_hidden(past_hidden))
-                    else:
-                        outputs = model(input_ids, past_key_values=past_hidden)
-                    out = m(outputs[0][:, -1, :]).data
-                    beam.advance(out)
-                    if args.model_type == "rnn":
-                        past_hidden = tuple(x.data.index_select(1, beam.getCurrentOrigin()).contiguous() for x in outputs[1])
-                    else:
-                        past = [torch.cat([x[0].unsqueeze(0),x[1].unsqueeze(0)],dim=0) if type(x)==tuple else x for x in outputs[1]]
-                        past_hidden = [x.data.index_select(1, beam.getCurrentOrigin()) for x in past]
-                hyp = beam.getHyp(beam.getFinal())
-                pred = beam.buildTargetTokens(hyp)[:beam_size]
+            outputs = model(inputs)
+            pred_scores = outputs[0]
+            pred_ids = pred_scores.argmax(-1)
 
-                pred = [torch.cat([x.view(-1) for x in p]+[zero]*(100-len(p))).view(1,-1) for p in pred]
-                p.append(torch.cat(pred, 0).unsqueeze(0))
-            p = torch.cat(p, 0)
-            for pred in p:
-                t = pred[0].cpu().numpy()
-                t = t.tolist()
-                if 0 in t:
-                    t = t[:t.index(0)]
-                if args.langs == "python":
-                    text = DecodeIds(t).strip("<EOL>").strip()
+        all_pred = []
+        all_gt = []
+        all_total = 0
+        prev_pred = None
+        for pred, gt in zip(pred_ids, inputs):
+            pred = pred.cpu().tolist()
+            gt = gt.cpu().tolist()
+
+            for i, y in enumerate(gt):
+                if i == 0:
+                    if y in [tokenizer.bos_token_id, tokenizer.eos_token_id, tokenizer.sep_token_id, tokenizer.pad_token_id]:
+                        now_gt = [y]
+                        now_pred = [0] if prev_pred is None else [prev_pred]
+                        all_pred.append(DecodeIds(now_pred).strip().split()[0])
+                        all_gt.append(DecodeIds(now_gt).strip())
+                        now_gt = []
+                        now_pred = []
+                    else:
+                        now_gt = [y]
+                        now_pred = [0] if prev_pred is None else [prev_pred]
                 else:
-                    text = DecodeIds(t).strip("{").strip()
-                # print(text)
-                # exit()
-                preds.append(text)
-                gts.append(gt[0])
-                edit_sim += fuzz.ratio(text, gt[0])
-                em += 1 if text == gt[0] else 0
+                    if tokenizer.convert_ids_to_tokens(y)[0] == '\u0120':
+                        if len(now_gt) > 0:
+                            try:
+                                all_pred.append(DecodeIds(now_pred).strip().split()[0])
+                            except IndexError:
+                                all_pred.append("<SPACE>")
+                            all_gt.append(DecodeIds(now_gt).strip())
+                            now_gt = []
+                            now_pred = []
+                    if y in [tokenizer.bos_token_id, tokenizer.eos_token_id, tokenizer.sep_token_id, tokenizer.pad_token_id] or tokenizer.convert_ids_to_tokens(y).startswith("<NUM_LIT"):
+                        if len(now_gt) > 0:
+                            try:
+                                all_pred.append(DecodeIds(now_pred).strip().split()[0])
+                            except IndexError:
+                                all_pred.append("<SPACE>")
+                            all_gt.append(DecodeIds(now_gt).strip())
+                        now_gt = [y]
+                        now_pred = [pred[i-1]]
+                        try:
+                            all_pred.append(DecodeIds(now_pred).strip().split()[0])
+                        except IndexError:
+                            all_pred.append("<SPACE>")
+                        all_gt.append(DecodeIds(now_gt).strip())
+                        now_gt = []
+                        now_pred = []
+                        continue
+                    now_gt.append(y)
+                    now_pred.append(pred[i-1])
+        assert len(all_pred) == len(all_gt)
+
+        total_pred.extend(all_pred)
+        total_gt.extend(all_gt)
+
+        for x, y in zip(all_pred, all_gt):
+            if y not in ["<s>", "</s>", "<EOL>", "<pad>"]:
+                total += 1
+                all_total += 1
+                if x == y:
+                    correct += 1
+
+
         if step % args.logging_steps == 0:
             logger.info(f"{step} are done!")
+            logger.info(f"{total} (this batch: {all_total}), Acc: {correct/total}")
 
-    saved_file = os.path.join(args.output_dir, "predictions_line.txt")
-    with open(saved_file, "w") as f:
-        for pred_text in preds:
-            f.write(pred_text+"\n")
-            
-    logger.info(f"Test {len(preds)} samples")
-    logger.info(f"Edit sim: {edit_sim/len(preds)}, EM: {em/len(preds)}")
+    # pickle.dump(total_pred, open(os.path.join(args.output_dir, "preds.pkl"), "wb"))
+    # pickle.dump(total_gt, open(os.path.join(args.output_dir, "gts.pkl"), "wb"))
+
+    saved_file = os.path.join(args.output_dir, "predictions.txt")
+    total_samples = post_process(args, total_pred, total_gt, open(os.path.join(args.data_dir, f"{file_type}.txt")).readlines(), saved_file)
+    logger.info(f"Eval on {total_samples}, saved at {saved_file}")
+    
+    return total, correct
+
+
+def post_process(args, preds, gts, true_gts, saved_file):
+    wf = open(saved_file, "w")
+
+    cnt = 0
+    new_gt = []
+    new_pred = []
+    for i, (pred,gt) in enumerate(zip(preds,gts)):
+        if gt in ["", "<pad>"]:
+            continue
+        new_gt.append(gt)
+        new_pred.append(pred.replace(" ", ""))
+        if gt == "</s>":
+            gt_str = " ".join(new_gt)
+            pred_str = " ".join(new_pred)
+            if gt_str != true_gts[cnt].strip():
+                # print("{cnt} sample gt_str != true_gt")
+                pass
+            else:
+                wf.write(pred_str+"\n")
+            cnt += 1
+            new_gt = []
+            new_pred = []
+    
+    return cnt
 
 
 def main():
@@ -457,7 +517,7 @@ def main():
     parser.add_argument("--model_type", default="gpt2", type=str,
                         help="The model architecture to be fine-tuned.")
     parser.add_argument("--pretrain_dir", default="", type=str,
-                        help="The pretrain directory where the pretrained model resides")
+                        help="The output directory where the model predictions and checkpoints will be written.")
     parser.add_argument("--config_dir", type=str,
                         help="config name. Required when training from scratch")
     parser.add_argument("--tokenizer_dir", type=str,
@@ -480,7 +540,7 @@ def main():
                              "Default to the model max input length for single sentence inputs (take into account special tokens).")
     parser.add_argument("--do_train", action='store_true',
                         help="Whether to run training.")
-    parser.add_argument("--eval_line", action='store_true',
+    parser.add_argument("--do_eval", action='store_true',
                         help="Whether to run eval on the dev set.")
     parser.add_argument("--evaluate_during_training", action='store_true',
                         help="Run evaluation during training at each logging step.")
@@ -544,7 +604,8 @@ def main():
     parser.add_argument('--log_file', type=str, default='')
     parser.add_argument('--tensorboard_dir', type=str)  
 
-    parser.add_argument('--early_eval_stop', type=int, default=-1) 
+    parser.add_argument('--early_train_stop', type=int, default=-1) 
+    parser.add_argument('--early_eval_stop', type=int, default=-1)
     
     pool = None
     args = parser.parse_args()
@@ -662,10 +723,13 @@ def main():
 
         global_step, tr_loss = train(args, train_dataset, model, tokenizer, fh, pool)
         logger.info(" global_step = %s, average loss = %s", global_step, tr_loss)
-    
+
     # Only works on single GPU
-    if args.eval_line:
-        eval_line_completion(args, model, tokenizer, file_type="test")
+    if args.do_eval:
+        # dev_total, dev_cr = eval_acc(args, model, tokenizer, 'dev')
+        # logger.info(f"Dev total tokens: {dev_total}, accuracy: {dev_cr/dev_total}")
+        test_total, test_cr = eval_acc(args, model, tokenizer, 'test')
+        logger.info(f"Test total tokens: {test_total}, accuracy: {test_cr/test_total}")
 
 
 if __name__ == "__main__":
