@@ -11,6 +11,9 @@ Code completion is a one of the most widely used features in software developmen
 
 ## Download links to our datasets and models
 ### Datasets
+If you want to do it yourself from scratch, without docker (docker also reproduces these), take a look at [entrypoint.sh](entrypoint.sh).
+Do not execute this file directly, it's made to be run by docker, but it should provide enough information for you to do this locally.
+
 The datasets for `py150` and `javaCorpus` are not created by us, [follow these steps](https://github.com/microsoft/CodeXGLUE/tree/main/Code-Code/CodeCompletion-token#dataset) to download and preprocess those datasets.
 Our datasets can be found here, they should be saved as is in the `dataset` folder, they should override the files in the folders you have locally, if you have already downloaded the datasets.
 * [Pre-processed and tokenized JavaScript dataset](https://drive.google.com/file/d/1O_F_6YFZYzpn4S__vHWd27_ZK8mVVzlx/view?usp=sharing)
