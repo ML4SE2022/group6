@@ -7,6 +7,7 @@ import re
 from tokenize import tokenize, untokenize, COMMENT, STRING, NEWLINE, ENCODING, ENDMARKER, NL, INDENT, NUMBER
 from io import BytesIO
 import json
+from tqdm import tqdm
 
 lits = json.load(open("literals.json"))
 
@@ -43,7 +44,7 @@ def process_string(token, special_chars={" ": "U+0020", ",": "U+002C"}):
 def py_tokenize(args, file_name, file_type):
     file_paths = open(os.path.join(args.base_dir, file_name)).readlines()
     wf = open(os.path.join(args.output_dir, f"{file_type}.txt"), 'w')
-    for ct,path in enumerate(file_paths):
+    for ct,path in tqdm(enumerate(file_paths), total=len(file_paths)):
         try:
             code = open(os.path.join(args.base_dir, path.strip())).read()
             token_gen = tokenize(BytesIO(bytes(code, "utf8")).readline)
