@@ -1,7 +1,7 @@
 
 ## Docker
 
-## Prerequisites
+## Prerequisites (on the host device)
 
 - Install NVidia drivers from [here](https://www.nvidia.com/Download/index.aspx?lang=en-us)
 - Install docker
