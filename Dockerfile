@@ -26,6 +26,8 @@ RUN pip --no-cache install transformers
 
 COPY code/ code/
 
+COPY run-all.sh eval-all.sh /
+
 COPY Makefile .
 
 ENTRYPOINT ["make"]
